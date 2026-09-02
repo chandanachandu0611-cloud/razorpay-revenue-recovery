@@ -12,8 +12,8 @@ app.use(express.json());
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
+    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_TXC4uVUhMbUJhr',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || '83x5iQG0270GjkRxXtDvYB6i',
 });
 
 // Initialize Gemini Client
@@ -100,26 +100,26 @@ app.post('/api/simulate-failure', async (req, res) => {
         finalAmount = Math.round(failureData.amount * (1 - agentDecision.discountPercent / 100));
     }
 
-    const fallbackUrl = "https://pages.razorpay.com/pl_sample_recovery/view";
+    const fallbackUrl = `/checkout-recovery?amount=${finalAmount / 100}&customer=${encodeURIComponent(failureData.customerName)}&reason=${encodeURIComponent(agentDecision.rootCause)}&discount=${agentDecision.discountPercent}`;
 
     if (agentDecision.strategy !== 'SMART_RETRY_SCHEDULED') {
         try {
             const link = await razorpay.paymentLink.create({
-                amount: finalAmount,
+                amount: Math.round(Number(finalAmount)),
                 currency: 'INR',
                 accept_partial: false,
                 description: `Recovery Checkout: ${agentDecision.rootCause}`,
                 customer: {
-                    name: failureData.customerName,
-                    email: failureData.customerEmail,
-                    contact: failureData.customerPhone,
+                    name: failureData.customerName || 'Ananya Rao',
+                    email: failureData.customerEmail || 'ananya.rao@example.com',
+                    contact: failureData.customerPhone || '+919876543210',
                 },
                 notify: { sms: false, email: false },
                 reminder_enable: false,
             });
             recoveryUrl = link?.short_url || fallbackUrl;
         } catch (err) {
-            console.error('Razorpay Error:', err);
+            console.error('Razorpay API Error:', err);
             recoveryUrl = fallbackUrl;
         }
     }

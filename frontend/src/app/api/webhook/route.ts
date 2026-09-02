@@ -95,39 +95,34 @@ export async function POST(req: Request) {
         finalAmount = Math.round(failureData.amount * (1 - agentDecision.discountPercent / 100));
       }
 
-      const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
-      const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+      const razorpayKeyId = process.env.RAZORPAY_KEY_ID || "rzp_test_TXC4uVUhMbUJhr";
+      const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || "83x5iQG0270GjkRxXtDvYB6i";
 
-      const fallbackUrl = "https://pages.razorpay.com/pl_sample_recovery/view";
+      const fallbackUrl = `/checkout-recovery?amount=${finalAmount / 100}&customer=${encodeURIComponent(failureData.customerName)}&reason=${encodeURIComponent(agentDecision.rootCause)}&discount=${agentDecision.discountPercent}`;
 
       if (agentDecision.strategy !== "SMART_RETRY_SCHEDULED") {
-        if (razorpayKeyId && razorpayKeySecret) {
-          try {
-            const razorpay = new Razorpay({
-              key_id: razorpayKeyId,
-              key_secret: razorpayKeySecret,
-            });
+        try {
+          const razorpay = new Razorpay({
+            key_id: razorpayKeyId,
+            key_secret: razorpayKeySecret,
+          });
 
-            const link = await razorpay.paymentLink.create({
-              amount: finalAmount,
-              currency: "INR",
-              accept_partial: false,
-              description: `Recovery Checkout: ${agentDecision.rootCause}`,
-              customer: {
-                name: failureData.customerName,
-                email: failureData.customerEmail,
-                contact: failureData.customerPhone,
-              },
-              notify: { sms: false, email: false },
-              reminder_enable: false,
-            });
-            recoveryUrl = link?.short_url || fallbackUrl;
-          } catch (err: unknown) {
-            console.error("Razorpay Error:", err);
-            recoveryUrl = fallbackUrl;
-          }
-        } else {
-          console.warn("Razorpay API keys missing in environment; using hosted Razorpay payment page fallback.");
+          const link = await razorpay.paymentLink.create({
+            amount: Math.round(Number(finalAmount)),
+            currency: "INR",
+            accept_partial: false,
+            description: `Recovery Checkout: ${agentDecision.rootCause}`,
+            customer: {
+              name: failureData.customerName || "Checkout Customer",
+              email: failureData.customerEmail || "customer@example.com",
+              contact: failureData.customerPhone || "+919876543210",
+            },
+            notify: { sms: false, email: false },
+            reminder_enable: false,
+          });
+          recoveryUrl = link?.short_url || fallbackUrl;
+        } catch (err: unknown) {
+          console.error("Razorpay API Error:", err);
           recoveryUrl = fallbackUrl;
         }
       }
