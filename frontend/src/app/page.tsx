@@ -17,15 +17,13 @@ interface RecoveryLog {
   status: string;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
-
 export default function Dashboard() {
   const [logs, setLogs] = useState<RecoveryLog[]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
 
   const fetchLogs = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/recovery-logs`);
+      const res = await fetch("/api/logs");
       if (res.ok) {
         const data = await res.json();
         setLogs(data);
@@ -44,7 +42,7 @@ export default function Dashboard() {
   const triggerSimulation = async (failureReason: string, amount: number) => {
     setIsSimulating(true);
     try {
-      await fetch(`${BACKEND_URL}/api/simulate-failure`, {
+      await fetch("/api/simulate-failure", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
