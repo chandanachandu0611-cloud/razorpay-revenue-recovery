@@ -100,7 +100,7 @@ app.post('/api/simulate-failure', async (req, res) => {
         finalAmount = Math.round(failureData.amount * (1 - agentDecision.discountPercent / 100));
     }
 
-    const fallbackUrl = `/checkout-recovery?amount=${finalAmount / 100}&customer=${encodeURIComponent(failureData.customerName)}&reason=${encodeURIComponent(agentDecision.rootCause)}&discount=${agentDecision.discountPercent}`;
+    const fallbackUrl = "https://pages.razorpay.com/pl_sample_recovery/view";
 
     if (agentDecision.strategy !== 'SMART_RETRY_SCHEDULED') {
         try {
@@ -115,6 +115,7 @@ app.post('/api/simulate-failure', async (req, res) => {
                     contact: failureData.customerPhone,
                 },
                 notify: { sms: false, email: false },
+                reminder_enable: false,
             });
             recoveryUrl = link?.short_url || fallbackUrl;
         } catch (err) {

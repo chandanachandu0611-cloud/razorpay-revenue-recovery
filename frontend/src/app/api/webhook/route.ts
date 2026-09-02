@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
       const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
 
-      const fallbackUrl = `/checkout-recovery?amount=${finalAmount / 100}&customer=${encodeURIComponent(failureData.customerName)}&reason=${encodeURIComponent(agentDecision.rootCause)}&discount=${agentDecision.discountPercent}`;
+      const fallbackUrl = "https://pages.razorpay.com/pl_sample_recovery/view";
 
       if (agentDecision.strategy !== "SMART_RETRY_SCHEDULED") {
         if (razorpayKeyId && razorpayKeySecret) {
@@ -119,6 +119,7 @@ export async function POST(req: Request) {
                 contact: failureData.customerPhone,
               },
               notify: { sms: false, email: false },
+              reminder_enable: false,
             });
             recoveryUrl = link?.short_url || fallbackUrl;
           } catch (err: unknown) {
@@ -126,7 +127,7 @@ export async function POST(req: Request) {
             recoveryUrl = fallbackUrl;
           }
         } else {
-          console.warn("Razorpay API keys missing in environment; using interactive checkout recovery link.");
+          console.warn("Razorpay API keys missing in environment; using hosted Razorpay payment page fallback.");
           recoveryUrl = fallbackUrl;
         }
       }

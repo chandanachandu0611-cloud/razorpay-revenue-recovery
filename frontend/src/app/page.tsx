@@ -183,7 +183,7 @@ export default function Dashboard() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {log.recoveryUrl || log.strategy !== "SMART_RETRY_SCHEDULED" ? (
                         <a
-                          href={log.recoveryUrl || "/checkout-recovery?amount=2499"}
+                          href={log.recoveryUrl || "https://pages.razorpay.com/pl_sample_recovery/view"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-emerald-400 hover:text-emerald-300 underline font-mono text-xs"
