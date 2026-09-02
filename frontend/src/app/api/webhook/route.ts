@@ -98,6 +98,8 @@ export async function POST(req: Request) {
       const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
       const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
 
+      const fallbackUrl = `/checkout-recovery?amount=${finalAmount / 100}&customer=${encodeURIComponent(failureData.customerName)}&reason=${encodeURIComponent(agentDecision.rootCause)}&discount=${agentDecision.discountPercent}`;
+
       if (agentDecision.strategy !== "SMART_RETRY_SCHEDULED") {
         if (razorpayKeyId && razorpayKeySecret) {
           try {
@@ -109,6 +111,7 @@ export async function POST(req: Request) {
             const link = await razorpay.paymentLink.create({
               amount: finalAmount,
               currency: "INR",
+              accept_partial: false,
               description: `Recovery Checkout: ${agentDecision.rootCause}`,
               customer: {
                 name: failureData.customerName,
@@ -117,14 +120,14 @@ export async function POST(req: Request) {
               },
               notify: { sms: false, email: false },
             });
-            recoveryUrl = link?.short_url || "https://rzp.io/i/mock-recovery-link";
+            recoveryUrl = link?.short_url || fallbackUrl;
           } catch (err: unknown) {
-            console.error("Razorpay link error:", err);
-            recoveryUrl = "https://rzp.io/i/mock-recovery-link";
+            console.error("Razorpay Error:", err);
+            recoveryUrl = fallbackUrl;
           }
         } else {
-          console.warn("Razorpay API keys missing in environment; using mock recovery link.");
-          recoveryUrl = "https://rzp.io/i/mock-recovery-link";
+          console.warn("Razorpay API keys missing in environment; using interactive checkout recovery link.");
+          recoveryUrl = fallbackUrl;
         }
       }
 

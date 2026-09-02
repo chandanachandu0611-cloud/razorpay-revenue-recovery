@@ -100,11 +100,14 @@ app.post('/api/simulate-failure', async (req, res) => {
         finalAmount = Math.round(failureData.amount * (1 - agentDecision.discountPercent / 100));
     }
 
+    const fallbackUrl = `/checkout-recovery?amount=${finalAmount / 100}&customer=${encodeURIComponent(failureData.customerName)}&reason=${encodeURIComponent(agentDecision.rootCause)}&discount=${agentDecision.discountPercent}`;
+
     if (agentDecision.strategy !== 'SMART_RETRY_SCHEDULED') {
         try {
             const link = await razorpay.paymentLink.create({
                 amount: finalAmount,
                 currency: 'INR',
+                accept_partial: false,
                 description: `Recovery Checkout: ${agentDecision.rootCause}`,
                 customer: {
                     name: failureData.customerName,
@@ -113,10 +116,10 @@ app.post('/api/simulate-failure', async (req, res) => {
                 },
                 notify: { sms: false, email: false },
             });
-            recoveryUrl = link?.short_url || "https://rzp.io/i/mock-recovery-link";
+            recoveryUrl = link?.short_url || fallbackUrl;
         } catch (err) {
-            console.error('Razorpay link error:', err);
-            recoveryUrl = "https://rzp.io/i/mock-recovery-link";
+            console.error('Razorpay Error:', err);
+            recoveryUrl = fallbackUrl;
         }
     }
 
