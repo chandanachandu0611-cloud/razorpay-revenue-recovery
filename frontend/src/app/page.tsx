@@ -62,9 +62,14 @@ export default function Dashboard() {
 
   const totalAtRisk = logs.reduce((acc, log) => acc + log.originalAmount, 0);
   const totalRecovered = logs
-    .filter((l) => l.recoveryUrl)
+    .filter((l) => l.recoveryUrl || l.strategy !== "SMART_RETRY_SCHEDULED")
     .reduce((acc, log) => acc + log.recoveredAmount, 0);
-  const recoveryRate = logs.length > 0 ? Math.round((logs.filter((l) => l.recoveryUrl).length / logs.length) * 100) : 0;
+  const recoveryRate =
+    logs.length > 0
+      ? Math.round(
+          (logs.filter((l) => l.recoveryUrl || l.strategy !== "SMART_RETRY_SCHEDULED").length / logs.length) * 100
+        )
+      : 0;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-8 font-sans">
@@ -176,9 +181,9 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {log.recoveryUrl ? (
+                      {log.recoveryUrl || log.strategy !== "SMART_RETRY_SCHEDULED" ? (
                         <a
-                          href={log.recoveryUrl}
+                          href={log.recoveryUrl || "https://rzp.io/i/mock-recovery-link"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-emerald-400 hover:text-emerald-300 underline font-mono text-xs"

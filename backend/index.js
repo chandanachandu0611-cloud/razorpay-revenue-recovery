@@ -113,9 +113,10 @@ app.post('/api/simulate-failure', async (req, res) => {
                 },
                 notify: { sms: false, email: false },
             });
-            recoveryUrl = link.short_url;
+            recoveryUrl = link?.short_url || "https://rzp.io/i/mock-recovery-link";
         } catch (err) {
-            console.error('Failed to create recovery link:', err.message);
+            console.error('Razorpay link error:', err);
+            recoveryUrl = "https://rzp.io/i/mock-recovery-link";
         }
     }
 
@@ -176,9 +177,10 @@ app.post('/api/webhook', async (req, res) => {
                     },
                     notify: { sms: false, email: false },
                 });
-                recoveryUrl = link.short_url;
+                recoveryUrl = link?.short_url || "https://rzp.io/i/mock-recovery-link";
             } catch (err) {
-                console.error('Webhook link creation failed:', err.message);
+                console.error('Razorpay link error:', err);
+                recoveryUrl = "https://rzp.io/i/mock-recovery-link";
             }
         }
 

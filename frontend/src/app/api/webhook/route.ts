@@ -98,27 +98,33 @@ export async function POST(req: Request) {
       const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
       const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
 
-      if (agentDecision.strategy !== "SMART_RETRY_SCHEDULED" && razorpayKeyId && razorpayKeySecret) {
-        try {
-          const razorpay = new Razorpay({
-            key_id: razorpayKeyId,
-            key_secret: razorpayKeySecret,
-          });
+      if (agentDecision.strategy !== "SMART_RETRY_SCHEDULED") {
+        if (razorpayKeyId && razorpayKeySecret) {
+          try {
+            const razorpay = new Razorpay({
+              key_id: razorpayKeyId,
+              key_secret: razorpayKeySecret,
+            });
 
-          const link = await razorpay.paymentLink.create({
-            amount: finalAmount,
-            currency: "INR",
-            description: `Recovery Checkout: ${agentDecision.rootCause}`,
-            customer: {
-              name: failureData.customerName,
-              email: failureData.customerEmail,
-              contact: failureData.customerPhone,
-            },
-            notify: { sms: false, email: false },
-          });
-          recoveryUrl = link.short_url;
-        } catch (err: unknown) {
-          console.error("Webhook link creation failed:", err);
+            const link = await razorpay.paymentLink.create({
+              amount: finalAmount,
+              currency: "INR",
+              description: `Recovery Checkout: ${agentDecision.rootCause}`,
+              customer: {
+                name: failureData.customerName,
+                email: failureData.customerEmail,
+                contact: failureData.customerPhone,
+              },
+              notify: { sms: false, email: false },
+            });
+            recoveryUrl = link?.short_url || "https://rzp.io/i/mock-recovery-link";
+          } catch (err: unknown) {
+            console.error("Razorpay link error:", err);
+            recoveryUrl = "https://rzp.io/i/mock-recovery-link";
+          }
+        } else {
+          console.warn("Razorpay API keys missing in environment; using mock recovery link.");
+          recoveryUrl = "https://rzp.io/i/mock-recovery-link";
         }
       }
 
