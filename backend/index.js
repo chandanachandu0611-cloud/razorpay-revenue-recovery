@@ -100,7 +100,7 @@ app.post('/api/simulate-failure', async (req, res) => {
         finalAmount = Math.round(failureData.amount * (1 - agentDecision.discountPercent / 100));
     }
 
-    const fallbackUrl = `/checkout-recovery?amount=${finalAmount / 100}&customer=${encodeURIComponent(failureData.customerName)}&reason=${encodeURIComponent(agentDecision.rootCause)}&discount=${agentDecision.discountPercent}`;
+    const fallbackUrl = "https://rzp.io/rzp/bPiVuFN";
 
     if (agentDecision.strategy !== 'SMART_RETRY_SCHEDULED') {
         try {
@@ -136,6 +136,7 @@ app.post('/api/simulate-failure', async (req, res) => {
         agentDiagnosis: agentDecision.rootCause,
         strategy: agentDecision.strategy,
         recoveryUrl: recoveryUrl,
+        payment_link: recoveryUrl,
         status: recoveryUrl ? 'LINK_SENT' : 'RETRY_QUEUED',
     };
 

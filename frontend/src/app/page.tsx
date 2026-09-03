@@ -14,6 +14,7 @@ interface RecoveryLog {
   agentDiagnosis: string;
   strategy: string;
   recoveryUrl: string | null;
+  payment_link?: string | null;
   status: string;
 }
 
@@ -181,12 +182,12 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {log.recoveryUrl || log.strategy !== "SMART_RETRY_SCHEDULED" ? (
+                      {log.payment_link || log.recoveryUrl || log.strategy !== "SMART_RETRY_SCHEDULED" ? (
                         <a
-                          href={log.recoveryUrl || "https://pages.razorpay.com/pl_sample_recovery/view"}
+                          href={log.payment_link || log.recoveryUrl || "https://rzp.io/rzp/bPiVuFN"}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-emerald-400 hover:text-emerald-300 underline font-mono text-xs"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow transition-all cursor-pointer"
                         >
                           Open Recovery Link ↗
                         </a>

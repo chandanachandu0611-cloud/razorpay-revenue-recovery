@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     const razorpayKeyId = process.env.RAZORPAY_KEY_ID || "rzp_test_TXC4uVUhMbUJhr";
     const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || "83x5iQG0270GjkRxXtDvYB6i";
 
-    const fallbackUrl = `/checkout-recovery?amount=${finalAmount / 100}&customer=${encodeURIComponent(failureData.customerName)}&reason=${encodeURIComponent(agentDecision.rootCause)}&discount=${agentDecision.discountPercent}`;
+    const fallbackUrl = "https://rzp.io/rzp/bPiVuFN";
 
     if (agentDecision.strategy !== "SMART_RETRY_SCHEDULED") {
       try {
@@ -139,7 +139,7 @@ export async function POST(req: Request) {
       }
     }
 
-    const logEntry: RecoveryLog = {
+    const logEntry = {
       id: `rec_${Date.now()}`,
       timestamp: new Date().toLocaleTimeString(),
       paymentId: failureData.paymentId,
@@ -150,6 +150,7 @@ export async function POST(req: Request) {
       agentDiagnosis: agentDecision.rootCause,
       strategy: agentDecision.strategy,
       recoveryUrl: recoveryUrl,
+      payment_link: recoveryUrl,
       status: recoveryUrl ? "LINK_SENT" : "RETRY_QUEUED",
     };
 
