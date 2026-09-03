@@ -65,6 +65,36 @@ export default function Dashboard() {
     }
   };
 
+  const handleOpenCheckout = (log: RecoveryLog) => {
+    if (typeof window === "undefined" || !(window as any).Razorpay) {
+      alert("Razorpay SDK is loading, please try again in a moment.");
+      return;
+    }
+
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TXC4uVUhMbUJhr",
+      amount: Math.round((log.recoveredAmount || log.originalAmount || 2499) * 100),
+      currency: "INR",
+      name: "Autonomous Revenue Recovery",
+      description: `Cart Recovery Checkout for ${log.customer || "Ananya Rao"}`,
+      prefill: {
+        name: log.customer || "Ananya Rao",
+        email: `${(log.customer || "ananya.rao").toLowerCase().replace(/\s+/g, '')}@example.com`,
+        contact: "+919876543210"
+      },
+      theme: {
+        color: "#2563eb"
+      },
+      handler: function (response: any) {
+        alert("Payment Recovered Successfully! Payment ID: " + response.razorpay_payment_id);
+        fetchLogs();
+      }
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+  };
+
   const totalAtRisk = logs.reduce((acc, log) => acc + log.originalAmount, 0);
   const totalRecovered = logs
     .filter((l) => l.recoveryUrl || l.strategy !== "SMART_RETRY_SCHEDULED")
@@ -187,14 +217,12 @@ export default function Dashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {log.payment_link || log.recoveryUrl || log.strategy !== "SMART_RETRY_SCHEDULED" ? (
-                        <a
-                          href={log.payment_link || log.recoveryUrl || "https://rzp.io/rzp/bPiVuFN"}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => handleOpenCheckout(log)}
                           className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow transition-all cursor-pointer"
                         >
                           Open Recovery Link ↗
-                        </a>
+                        </button>
                       ) : (
                         <span className="text-slate-500 text-xs">Smart Retry Scheduled</span>
                       )}
