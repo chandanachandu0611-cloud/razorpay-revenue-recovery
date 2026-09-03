@@ -40,15 +40,13 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const triggerSimulation = async (failureReason: string, amount: number) => {
+  const triggerSimulation = async (failureReason: string, amount?: number) => {
     setIsSimulating(true);
     try {
       await fetch("/api/simulate-failure", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerName: "Ananya Rao",
-          customerEmail: "ananya.rao@example.com",
           amount: amount,
           failureReason: failureReason,
         }),

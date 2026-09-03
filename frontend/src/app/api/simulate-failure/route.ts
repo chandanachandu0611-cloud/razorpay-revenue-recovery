@@ -84,18 +84,28 @@ Return ONLY a valid JSON object matching this schema:
   }
 }
 
+const mockCustomers = [
+  { name: "Vikram Malhotra", email: "vikram.m@example.com", phone: "+919876543211", amount: 349900 },
+  { name: "Pooja Sharma", email: "pooja.s@example.com", phone: "+919876543212", amount: 189900 },
+  { name: "Rahul Verma", email: "rahul.v@example.com", phone: "+919876543213", amount: 529900 },
+  { name: "Sneha Patel", email: "sneha.p@example.com", phone: "+919876543214", amount: 249900 },
+  { name: "Arjun Nair", email: "arjun.n@example.com", phone: "+919876543215", amount: 415000 },
+];
+
 export async function POST(req: Request) {
   try {
     const body: FailureInput = await req.json().catch(() => ({}));
 
+    const selectedCustomer = mockCustomers[Math.floor(Math.random() * mockCustomers.length)];
+
     const failureData = {
       paymentId: body.paymentId || `pay_${Math.random().toString(36).substring(7)}`,
-      amount: body.amount || 249900,
+      amount: body.amount || selectedCustomer.amount,
       errorCode: body.failureReason || body.errorCode || "BAD_REQUEST_PAYMENT_TIMED_OUT",
       errorDescription: body.errorDescription || "Customer dropped off at OTP screen or session expired",
-      customerName: body.customerName || "Rahul Sharma",
-      customerEmail: body.customerEmail || "rahul.sharma@example.com",
-      customerPhone: body.customerPhone || "+919876543210",
+      customerName: body.customerName && body.customerName !== "Ananya Rao" ? body.customerName : selectedCustomer.name,
+      customerEmail: body.customerEmail && body.customerEmail !== "ananya.rao@example.com" ? body.customerEmail : selectedCustomer.email,
+      customerPhone: body.customerPhone || selectedCustomer.phone,
     };
 
     const agentDecision = await runRecoveryAgent(failureData);
@@ -123,11 +133,12 @@ export async function POST(req: Request) {
           amount: Math.round(Number(finalAmount)),
           currency: "INR",
           accept_partial: false,
-          description: `Recovery Checkout: ${agentDecision.rootCause}`,
+          reference_id: "rec_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+          description: `Cart Recovery Checkout for ${failureData.customerName}`,
           customer: {
-            name: failureData.customerName || "Ananya Rao",
-            email: failureData.customerEmail || "ananya.rao@example.com",
-            contact: failureData.customerPhone || "+919876543210",
+            name: failureData.customerName,
+            email: failureData.customerEmail,
+            contact: failureData.customerPhone,
           },
           notify: { sms: false, email: false },
           reminder_enable: false,
