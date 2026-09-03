@@ -3,6 +3,11 @@
 
 An autonomous AI revenue recovery system built for Razorpay merchants to eliminate lost GMV caused by cart drops, OTP timeouts, session expirations, and bank/gateway outages.
 
+## 🎥 Demo Video
+
+![Watch the Demo](https://img.youtube.com/vi/oHFt_JnVpsM/0.jpg)(https://youtu.be/oHFt_JnVpsM)
+
+> 💡 *Click the preview image above to watch the full demo on YouTube.*
 ---
 
 ## 📌 Track & Problem Statement
