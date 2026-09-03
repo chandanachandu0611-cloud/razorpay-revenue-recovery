@@ -5,7 +5,7 @@ An autonomous AI revenue recovery system built for Razorpay merchants to elimina
 
 ## 🎥 Demo Video
 
-![Watch the Demo](https://img.youtube.com/vi/oHFt_JnVpsM/0.jpg)(https://youtu.be/oHFt_JnVpsM)
+[![Watch the Demo](https://img.youtube.com/vi/oHFt_JnVpsM/0.jpg)](https://youtu.be/oHFt_JnVpsM)
 
 > 💡 *Click the preview image above to watch the full demo on YouTube.*
 ---
