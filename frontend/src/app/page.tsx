@@ -43,7 +43,7 @@ export default function Dashboard() {
   const triggerSimulation = async (failureReason: string, amount?: number) => {
     setIsSimulating(true);
     try {
-      await fetch("/api/simulate-failure", {
+      const res = await fetch("/api/simulate-failure", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -51,6 +51,12 @@ export default function Dashboard() {
           failureReason: failureReason,
         }),
       });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.result) {
+          setLogs((prev) => [data.result, ...prev]);
+        }
+      }
       await fetchLogs();
     } catch (err) {
       console.error("Simulation error:", err);

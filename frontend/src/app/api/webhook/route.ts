@@ -99,6 +99,9 @@ export async function POST(req: Request) {
       const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || "83x5iQG0270GjkRxXtDvYB6i";
 
       const fallbackUrl = "https://rzp.io/rzp/bPiVuFN";
+      const uniqueRef = "rec_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+      const customerEmail = failureData.customerEmail || `${(failureData.customerName || 'customer').toLowerCase().replace(/\s+/g, '')}@example.com`;
+      const customerPhone = failureData.customerPhone || "+919876543210";
 
       if (agentDecision.strategy !== "SMART_RETRY_SCHEDULED") {
         try {
@@ -111,11 +114,12 @@ export async function POST(req: Request) {
             amount: Math.round(Number(finalAmount)),
             currency: "INR",
             accept_partial: false,
-            description: `Recovery Checkout: ${agentDecision.rootCause}`,
+            reference_id: uniqueRef,
+            description: `Recovery Checkout for ${failureData.customerName || 'Customer'}`,
             customer: {
               name: failureData.customerName || "Checkout Customer",
-              email: failureData.customerEmail || "customer@example.com",
-              contact: failureData.customerPhone || "+919876543210",
+              email: customerEmail,
+              contact: customerPhone,
             },
             notify: { sms: false, email: false },
             reminder_enable: false,

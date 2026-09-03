@@ -111,6 +111,9 @@ app.post('/api/simulate-failure', async (req, res) => {
     }
 
     const fallbackUrl = "https://rzp.io/rzp/bPiVuFN";
+    const uniqueRef = "rec_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+    const formattedEmail = failureData.customerEmail || `${(failureData.customerName || 'customer').toLowerCase().replace(/\s+/g, '')}@example.com`;
+    const formattedPhone = failureData.customerPhone || "+919876543210";
 
     if (agentDecision.strategy !== 'SMART_RETRY_SCHEDULED') {
         try {
@@ -118,12 +121,12 @@ app.post('/api/simulate-failure', async (req, res) => {
                 amount: Math.round(Number(finalAmount)),
                 currency: 'INR',
                 accept_partial: false,
-                reference_id: "rec_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
-                description: `Cart Recovery Checkout for ${failureData.customerName}`,
+                reference_id: uniqueRef,
+                description: `Recovery Checkout for ${failureData.customerName}`,
                 customer: {
                     name: failureData.customerName,
-                    email: failureData.customerEmail,
-                    contact: failureData.customerPhone,
+                    email: formattedEmail,
+                    contact: formattedPhone,
                 },
                 notify: { sms: false, email: false },
                 reminder_enable: false,
